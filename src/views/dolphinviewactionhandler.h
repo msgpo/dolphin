@@ -135,6 +135,9 @@ private Q_SLOTS:
     /** Switches between a separate sorting and a mixed sorting of files and folders. */
     void toggleSortFoldersFirst();
 
+    /** Switches between a separate sorting and a mixed sorting of hidden files and regular files. */
+    void toggleSortHiddenFilesLast();
+
     /**
      * Updates the state of the 'Sort Ascending/Descending' action.
      */
@@ -144,6 +147,11 @@ private Q_SLOTS:
      * Updates the state of the 'Sort Folders First' action.
      */
     void slotSortFoldersFirstChanged(bool foldersFirst);
+
+    /**
+     * Updates the state of the 'Sort Hidden Files Last' action.
+     */
+    void slotSortHiddenFilesLastChanged(bool hiddenFilesLast);
 
     /**
      * Updates the state of the 'Sort by' actions.
