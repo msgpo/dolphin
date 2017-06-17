@@ -35,6 +35,7 @@
 #include "panels/places/placespanel.h"
 #include "panels/information/informationpanel.h"
 #include "panels/terminal/terminalpanel.h"
+#include "panels/buttongroup/buttongrouppanel.h"
 #include "settings/dolphinsettingsdialog.h"
 #include "statusbar/dolphinstatusbar.h"
 #include "views/dolphinviewactionhandler.h"
@@ -72,6 +73,7 @@
 #include <QCloseEvent>
 #include <QDialog>
 #include <QFileInfo>
+#include <QKeySequence>
 #include <QLineEdit>
 #include <QMenu>
 #include <QMenuBar>
@@ -1376,6 +1378,25 @@ void DolphinMainWindow::setupDockWidgets()
     connect(m_placesPanel, &PlacesPanel::storageTearDownExternallyRequested,
             this, &DolphinMainWindow::slotStorageTearDownExternallyRequested);
     m_tabWidget->slotPlacesPanelVisibilityChanged(m_placesPanel->isVisible());
+
+
+    // Setup "Left Buttons"
+    DolphinDockWidget* leftButtonsDock = new DolphinDockWidget(i18nc("@title:window", "Left Buttons"));
+    leftButtonsDock->setLocked(lock);
+    leftButtonsDock->setObjectName(QStringLiteral("leftButtonsDock"));
+
+    ButtonGroupPanel* leftButtonsPanel = new ButtonGroupPanel(leftButtonsDock);
+    leftButtonsPanel->setCustomContextMenuActions({lockLayoutAction});
+    leftButtonsPanel->appendAction(actionCollection()->action(KStandardAction::name(KStandardAction::Back)));
+    leftButtonsPanel->appendAction(actionCollection()->action(KStandardAction::name(KStandardAction::Forward)));
+    leftButtonsPanel->appendAction(actionCollection()->action(KStandardAction::name(KStandardAction::Up)));
+    leftButtonsPanel->appendAction(actionCollection()->action(QStringLiteral("view_mode")));
+    
+    leftButtonsDock->setWidget(leftButtonsPanel);
+    QAction* leftButtonsAction = leftButtonsDock->toggleViewAction();
+    createPanelAction(QIcon::fromTheme(QStringLiteral("arrow-left")), *(new QKeySequence()), leftButtonsAction, QStringLiteral("show_leftbuttons_panel"));
+    addDockWidget(Qt::RightDockWidgetArea, leftButtonsDock);
+
 
     // Add actions into the "Panels" menu
     KActionMenu* panelsMenu = new KActionMenu(i18nc("@action:inmenu View", "Panels"), this);
