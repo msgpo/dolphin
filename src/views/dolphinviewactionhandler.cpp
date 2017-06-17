@@ -136,17 +136,19 @@ void DolphinViewActionHandler::createActions()
     connect(propertiesAction, &QAction::triggered, this, &DolphinViewActionHandler::slotProperties);
 
     // View menu
-    KToggleAction* iconsAction = iconsModeAction();
-    KToggleAction* compactAction = compactModeAction();
-    KToggleAction* detailsAction = detailsModeAction();
-
     KSelectAction* viewModeActions = m_actionCollection->add<KSelectAction>(QStringLiteral("view_mode"));
     viewModeActions->setText(i18nc("@action:intoolbar", "View Mode"));
-    viewModeActions->addAction(iconsAction);
-    viewModeActions->addAction(compactAction);
-    viewModeActions->addAction(detailsAction);
+    viewModeActions->addAction(viewPresetAction(ViewPreset::HugeIconsView, QStringLiteral("huge_icons_preset"), i18nc("@action:inmenu View Mode", "Huge Icons"), QStringLiteral("viewimage")));
+    viewModeActions->addAction(viewPresetAction(ViewPreset::LargeIconsView, QStringLiteral("large_icons_preset"), i18nc("@action:inmenu View Mode", "Large Icons"), QStringLiteral("viewimage")));
+    viewModeActions->addAction(viewPresetAction(ViewPreset::MediumIconsView, QStringLiteral("medium_icons_preset"), i18nc("@action:inmenu View Mode", "Medium Icons"), QStringLiteral("view-list-icons")));
+    viewModeActions->addAction(viewPresetAction(ViewPreset::CompactView, QStringLiteral("compact_preset"), i18nc("@action:inmenu View Mode", "Compact"), QStringLiteral("view-list-details")));
+    viewModeActions->addAction(viewPresetAction(ViewPreset::DetailsView, QStringLiteral("details_preset"), i18nc("@action:inmenu View Mode", "Details"), QStringLiteral("view-list-tree")));
+    viewModeActions->addAction(viewPresetAction(ViewPreset::TilesView, QStringLiteral("tiles_preset"), i18nc("@action:inmenu View Mode", "Tiles"), QStringLiteral("view-list-details")));
     viewModeActions->setToolBarMode(KSelectAction::MenuMode);
     connect(viewModeActions, static_cast<void(KSelectAction::*)(QAction*)>(&KSelectAction::triggered), this, &DolphinViewActionHandler::slotViewModeActionTriggered);
+    m_actionCollection->setDefaultShortcut(m_actionCollection->action(QStringLiteral("medium_icons_preset")), Qt::CTRL | Qt::Key_1);
+    m_actionCollection->setDefaultShortcut(m_actionCollection->action(QStringLiteral("compact_preset")), Qt::CTRL | Qt::Key_2);
+    m_actionCollection->setDefaultShortcut(m_actionCollection->action(QStringLiteral("details_preset")), Qt::CTRL | Qt::Key_3);
 
     KStandardAction::zoomIn(this,
                             &DolphinViewActionHandler::zoomIn,
@@ -294,8 +296,54 @@ QActionGroup* DolphinViewActionHandler::createFileItemRolesActionGroup(const QSt
 
 void DolphinViewActionHandler::slotViewModeActionTriggered(QAction* action)
 {
-    const DolphinView::Mode mode = action->data().value<DolphinView::Mode>();
-    m_currentView->setMode(mode);
+    const ViewPreset viewPreset = action->data().value<ViewPreset>();
+    switch(viewPreset) {
+
+    case ViewPreset::HugeIconsView:
+        m_currentView->setMode(DolphinView::IconsView);
+        m_currentView->setPreviewsShown(true);
+        m_currentView->setZoomLevel(ZoomLevelInfo::maximumLevel());
+        break;
+
+    case ViewPreset::LargeIconsView:
+        m_currentView->setMode(DolphinView::IconsView);
+        m_currentView->setPreviewsShown(true);
+        m_currentView->setZoomLevel(ZoomLevelInfo::maximumLevel() / 2);
+        break;
+
+    case ViewPreset::MediumIconsView:
+        m_currentView->setPreviewsShown(true);
+        m_currentView->setMode(DolphinView::IconsView);
+        m_currentView->setZoomLevel(4);
+        break;
+
+    case ViewPreset::CompactView:
+        m_currentView->setPreviewsShown(false);
+        m_currentView->setMode(DolphinView::CompactView);
+        setVisibleRole("type", false);
+        setVisibleRole("size", false);
+        break;
+
+    case ViewPreset::DetailsView:
+        m_currentView->setPreviewsShown(false);
+        m_currentView->setMode(DolphinView::DetailsView);
+        break;
+
+    case ViewPreset::TilesView:
+        m_currentView->setPreviewsShown(true);
+        m_currentView->setMode(DolphinView::CompactView);
+        m_currentView->setZoomLevel(4);
+        setVisibleRole("type", true);
+        setVisibleRole("size", true);
+        break;
+
+    default:
+        Q_ASSERT(false);
+        break;
+    }
+
+    // const DolphinView::Mode mode = action->data().value<DolphinView::Mode>();
+    // m_currentView->setMode(mode);
 
     QAction* viewModeMenu = m_actionCollection->action(QStringLiteral("view_mode"));
     viewModeMenu->setIcon(action->icon());
@@ -337,11 +385,21 @@ QString DolphinViewActionHandler::currentViewModeActionName() const
 {
     switch (m_currentView->mode()) {
     case DolphinView::IconsView:
-        return QStringLiteral("icons");
+        if (m_currentView->zoomLevel() > ZoomLevelInfo::maximumLevel() / 2) { // largeIconZoomLevel
+            return QStringLiteral("huge_icons_preset");
+        } else if (m_currentView->zoomLevel() > 4) { // mediumIconZoomLevel
+            return QStringLiteral("large_icons_preset");
+        } else {
+            return QStringLiteral("medium_icons_preset");
+        }
     case DolphinView::DetailsView:
-        return QStringLiteral("details");
+        return QStringLiteral("details_preset");
     case DolphinView::CompactView:
-        return QStringLiteral("compact");
+        if (m_currentView->zoomLevel() >= 4) { // tilesViewZoomLevel
+            return QStringLiteral("tiles_preset");
+        } else {
+            return QStringLiteral("compact_preset");
+        }
     default:
         Q_ASSERT(false);
         break;
@@ -430,6 +488,16 @@ void DolphinViewActionHandler::slotSortHiddenFilesLastChanged(bool hiddenFilesLa
     m_actionCollection->action(QStringLiteral("hidden_files_last"))->setChecked(hiddenFilesLast);
 }
 
+void DolphinViewActionHandler::setVisibleRole(const char* roleName, bool show)
+{
+    QAction* action = m_actionCollection->action(QStringLiteral("show_") + roleName);
+    if (action->isChecked() == show) {
+        return;
+    }
+    action->setChecked(show);
+    toggleVisibleRole(action);
+}
+
 void DolphinViewActionHandler::toggleVisibleRole(QAction* action)
 {
     emit actionBeingHandled();
@@ -502,6 +570,17 @@ void DolphinViewActionHandler::slotWriteStateChanged(bool isFolderWritable)
 {
     m_actionCollection->action(QStringLiteral("create_dir"))->setEnabled(isFolderWritable &&
                                                                          KProtocolManager::supportsMakeDir(currentView()->url()));
+}
+
+
+KToggleAction* DolphinViewActionHandler::viewPresetAction(ViewPreset viewPreset, const QString& actionName, const QString& viewPresetLabel, const QString& iconName)
+{
+    KToggleAction* viewPresetAction = m_actionCollection->add<KToggleAction>(actionName);
+    viewPresetAction->setText(viewPresetLabel);
+    viewPresetAction->setToolTip(i18nc("@info", "%1 view mode", viewPresetLabel));
+    viewPresetAction->setIcon(QIcon::fromTheme(iconName));
+    viewPresetAction->setData(QVariant::fromValue(viewPreset));
+    return viewPresetAction;
 }
 
 KToggleAction* DolphinViewActionHandler::iconsModeAction()
