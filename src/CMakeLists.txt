@@ -68,6 +68,9 @@ set(dolphinprivate_LIB_SRCS
     kitemviews/kitemlistwidget.cpp
     kitemviews/kitemmodelbase.cpp
     kitemviews/kitemset.cpp
+    kitemviews/mountpointobserver.cpp
+    kitemviews/mountpointobservercache.cpp
+    kitemviews/spaceinfoobserver.cpp
     kitemviews/kstandarditem.cpp
     kitemviews/kstandarditemlistgroupheader.cpp
     kitemviews/kstandarditemlistwidget.cpp

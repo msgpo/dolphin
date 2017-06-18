@@ -37,6 +37,9 @@
 #include <QPixmapCache>
 #include <QStyleOption>
 
+#include "spaceinfoobserver.h"
+#include <KMountPoint>
+
 // #define KSTANDARDITEMLISTWIDGET_DEBUG
 
 KStandardItemListWidgetInformant::KStandardItemListWidgetInformant() :
@@ -268,6 +271,9 @@ KStandardItemListWidget::KStandardItemListWidget(KItemListWidgetInformant* infor
     m_additionalInfoTextColor(),
     m_overlay(),
     m_rating(),
+    m_isMountPoint(false),
+    m_spaceInfoObserver(0),
+    m_progressBar(),
     m_roleEditor(nullptr),
     m_oldRoleEditor(nullptr)
 {
@@ -284,6 +290,10 @@ KStandardItemListWidget::~KStandardItemListWidget()
 
     if (m_oldRoleEditor) {
         m_oldRoleEditor->deleteLater();
+    }
+
+    if (m_spaceInfoObserver) {
+        m_spaceInfoObserver->deleteLater();
     }
 }
 
@@ -406,8 +416,13 @@ void KStandardItemListWidget::paint(QPainter* painter, const QStyleOptionGraphic
     painter->setFont(m_customizedFont);
 
     for (int i = 1; i < m_sortedVisibleRoles.count(); ++i) {
-        const TextInfo* textInfo = m_textInfo.value(m_sortedVisibleRoles[i]);
-        painter->drawStaticText(textInfo->pos, textInfo->staticText);
+        const QByteArray role = m_sortedVisibleRoles[i];
+        if (role == "size" && !m_progressBar.isNull()) {
+            // skip
+        } else {
+            const TextInfo* textInfo = m_textInfo.value(role);
+            painter->drawStaticText(textInfo->pos, textInfo->staticText);
+        }
     }
 
     if (!m_rating.isNull()) {
@@ -418,6 +433,18 @@ void KStandardItemListWidget::paint(QPainter* painter, const QStyleOptionGraphic
             pos.rx() += (size().width() - m_rating.width()) / 2 - 2;
         }
         painter->drawPixmap(pos, m_rating);
+    }
+
+    if (!m_progressBar.isNull()) {
+        const TextInfo* sizeTextInfo = m_textInfo.value("size");
+        if (sizeTextInfo) {
+            QPointF pos = sizeTextInfo->pos;
+            const Qt::Alignment align = sizeTextInfo->staticText.textOption().alignment();
+            if (align & Qt::AlignHCenter) {
+                pos.rx() += (size().width() - m_progressBar.width()) / 2 - 2;
+            }
+            painter->drawPixmap(pos, m_progressBar);
+        }
     }
 
     if (clipAdditionalInfoBounds) {
@@ -681,6 +708,28 @@ void KStandardItemListWidget::dataChanged(const QHash<QByteArray, QVariant>& cur
     KFileItemClipboard* clipboard = KFileItemClipboard::instance();
     const QUrl itemUrl = data().value("url").toUrl();
     m_isCut = clipboard->isCut(itemUrl);
+
+    if (itemUrl.isLocalFile()) {
+        const QString urlPath = itemUrl.toLocalFile();
+        KMountPoint::Ptr mp = KMountPoint::currentMountPoints().findByPath(urlPath);
+        m_isMountPoint = (mp && mp->mountPoint() == urlPath);
+        if (m_isMountPoint) {
+            if (m_spaceInfoObserver) {
+                m_spaceInfoObserver->setUrl(itemUrl);
+            } else {
+                m_spaceInfoObserver = new SpaceInfoObserver(itemUrl);
+            }
+            // connect(m_spaceInfoObserver, &MountPointObserver::spaceInfoChanged, this, &KStandardItemListWidget::spaceInfoChanged);
+        }
+    } else {
+        m_isMountPoint = false;
+        // if (!m_spaceInfoObserver.isNull()) {
+        //     disconnect(m_spaceInfoObserver, &MountPointObserver::spaceInfoChanged, this, &KStandardItemListWidget::spaceInfoChanged);
+        // }
+        if (m_spaceInfoObserver) {
+            // m_spaceInfoObserver->deleteLater();
+        }
+    }
 
     // The icon-state might depend from other roles and hence is
     // marked as dirty whenever a role has been changed
@@ -1108,8 +1157,71 @@ void KStandardItemListWidget::updateTextsCache()
         const QRect rect(QPoint(0, 0), ratingSize.toSize());
         const int rating = data().value("rating").toInt();
         KRatingPainter::paintRating(&painter, rect, Qt::AlignJustify | Qt::AlignVCenter, rating);
+
     } else if (!m_rating.isNull()) {
         m_rating = QPixmap();
+    }
+
+    if (m_isMountPoint) {
+        const KItemListStyleOption& option = styleOption();
+        QSizeF progressBarSize = preferredRatingSize(option);
+
+        const qreal availableWidth = (m_layout == DetailsLayout)
+                                     ? columnWidth("size") - columnPadding(option)
+                                     : size().width();
+        if (progressBarSize.width() > availableWidth) {
+            progressBarSize.rwidth() = availableWidth;
+        }
+        m_progressBar = QPixmap(progressBarSize.toSize());
+        m_progressBar.fill(Qt::transparent);
+
+        QPainter painter(&m_progressBar);
+        const QRect rect(0, m_progressBar.height() * 2/10, m_progressBar.width(), m_progressBar.height() * 8/10);
+        // const int rating = data().value("rating").toInt();
+        // KRatingPainter::paintRating(&painter, rect, Qt::AlignJustify | Qt::AlignVCenter, rating);
+        // painter->setPen(..)
+
+
+        // CapacityBar test
+        // https://github.com/qt/qtbase/blob/dev/src/widgets/widgets/qprogressbar.cpp#L405
+        // https://github.com/qt/qtbase/blob/04eba7b538072e2811f074bf66fd41f27c90b35c/src/widgets/styles/qcommonstyle.cpp#L1403
+        // const quint64 totalSpace = 1238909347;
+        // const quint64 availableSpace = 238909347;
+        
+        quint64 totalSpace = 0;
+        quint64 availableSpace = 0;
+        if (m_spaceInfoObserver) {
+            totalSpace = m_spaceInfoObserver->size();
+            availableSpace = m_spaceInfoObserver->available();
+        }
+        if (totalSpace == 0 && availableSpace == 0) {
+            // Empty progressbar
+            totalSpace = 1;
+            availableSpace = 1;
+        } else {
+            totalSpace = totalSpace < 1 ? 1 : totalSpace; // Don't divide by 0
+            availableSpace = availableSpace > totalSpace ? totalSpace : availableSpace; // Don't go over 100%
+        }
+        const quint64 usedSpace = totalSpace - availableSpace;
+        const qreal ratio = (qreal)usedSpace / (qreal)totalSpace;
+        // const qreal ratio = 0.96;
+
+        
+        const QPalette pal = palette();
+        
+        painter.fillRect(rect, QColor::fromRgb(230, 230, 230)); // Background
+        painter.setPen(QColor::fromRgb(208, 208, 208));
+        painter.drawRect(rect); // Outline
+
+        const QRect fillRect(rect.x(), rect.y(), rect.width() * ratio, rect.height());
+        if (ratio < 0.95) { // Fill
+            painter.fillRect(fillRect, QColor::fromRgb(38, 160, 218));
+        } else {
+            painter.fillRect(fillRect, QColor::fromRgb(218, 38, 38));
+        }
+
+    } else if (!m_progressBar.isNull()) {
+        m_progressBar = QPixmap();
     }
 }
 
@@ -1346,6 +1458,8 @@ void KStandardItemListWidget::updateDetailsLayoutTextCache()
             // The column after the name should always be aligned on the same x-position independent
             // from the expansion-level shown in the name column
             x -= firstColumnInc;
+        } else if (role == "size" && !m_progressBar.isNull()) {
+            // textInfo->pos.rx() += roleWidth;
         } else if (isRoleRightAligned(role)) {
             textInfo->pos.rx() += roleWidth - requiredWidth - columnWidthInc;
         }
