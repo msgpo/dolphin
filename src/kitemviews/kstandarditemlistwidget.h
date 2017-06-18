@@ -30,6 +30,7 @@
 class KItemListRoleEditor;
 class KItemListStyleOption;
 class KItemListView;
+class SpaceInfoObserver;
 
 class DOLPHIN_EXPORT KStandardItemListWidgetInformant : public KItemListWidgetInformant
 {
@@ -268,6 +269,10 @@ private:
 
     QPixmap m_overlay;
     QPixmap m_rating;
+
+    bool m_isMountPoint;
+    SpaceInfoObserver* m_spaceInfoObserver;
+    QPixmap m_progressBar;
 
     KItemListRoleEditor* m_roleEditor;
     KItemListRoleEditor* m_oldRoleEditor;
