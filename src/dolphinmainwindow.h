@@ -28,6 +28,7 @@
 #include <kxmlguiwindow.h>
 
 #include <QIcon>
+#include <QKeyEvent>
 #include <QList>
 #include <QPointer>
 #include <QUrl>
@@ -153,6 +154,12 @@ protected:
 
     /** @see KMainWindow::readProperties() */
     void readProperties(const KConfigGroup& group) override;
+
+    /** @see QMainWindow::keyPressEvent() */
+    virtual void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
+
+    /** @see QMainWindow::keyReleaseEvent() */
+    virtual void keyReleaseEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
     /**
@@ -290,6 +297,16 @@ private slots:
      * visible if it is hidden.
      */
     void toggleShowMenuBar();
+
+    /**
+     * If menu bar is not visible, temporarily show it.
+     */
+    void tempShowMenuBar();
+
+    /**
+     * If temporarily showing the menu bar, hide it.
+     */
+    void cancelTempShowMenuBar();
 
     /** Opens a terminal window for the current location. */
     void openTerminal();
@@ -518,6 +535,8 @@ private:
     QTimer* m_updateToolBarTimer;
 
     KIO::Job* m_lastHandleUrlStatJob;
+
+    bool m_tempMenuBar;
 
     TerminalPanel* m_terminalPanel;
     PlacesPanel* m_placesPanel;
