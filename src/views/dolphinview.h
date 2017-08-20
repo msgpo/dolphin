@@ -802,6 +802,7 @@ private:
                      // tooltip may be shown when hovering an item.
 
     QUrl m_url;
+    QUrl m_goUpUrl; // Used to track the folder from which a go-up is done
     QString m_viewPropertiesContext;
     Mode m_mode;
     QList<QByteArray> m_visibleRoles;
