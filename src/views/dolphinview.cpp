@@ -595,6 +595,7 @@ void DolphinView::setUrl(const QUrl& url)
 
     clearSelection();
 
+    m_goUpUrl = m_url;
     m_url = url;
 
     hideToolTip();
@@ -1428,6 +1429,8 @@ void DolphinView::updateViewState()
             selectionManager->setSelectedItems(selectedItems);
         }
     }
+
+    m_goUpUrl = QUrl(); // reset
 }
 
 void DolphinView::hideToolTip()
@@ -1519,6 +1522,13 @@ void DolphinView::slotDirectoryLoadingStarted()
 
 void DolphinView::slotDirectoryLoadingCompleted()
 {
+    // If there's no current or selected item, this can be about going up
+    // and we can mark the previous url's item to be scrolled to and selected.
+    if (!m_goUpUrl.isEmpty() && m_selectedUrls.isEmpty() && m_currentItemUrl.isEmpty()) {
+        markUrlAsCurrent(m_goUpUrl);
+        m_selectedUrls << m_goUpUrl;
+    }
+
     // Update the view-state. This has to be done asynchronously
     // because the view might not be in its final state yet.
     QTimer::singleShot(0, this, &DolphinView::updateViewState);
