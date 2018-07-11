@@ -23,6 +23,9 @@ This is a fork of the Dolphin file browser that patches in a couple of features.
   [[Bug #377392](https://bugs.kde.org/show_bug.cgi?id=377392)] should be a duplicate, but contains a patch by the creator.
 
 
+This fork isn't always up to date with KDE/Dolphin's master branch. To see what is missing, [compare the branches](https://github.com/Zren/dolphin/compare/zren...KDE:master).
+
+
 ## Install from source (to `/usr/local/bin`)
 
 ```
