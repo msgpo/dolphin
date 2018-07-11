@@ -29,6 +29,7 @@ This fork isn't always up to date with KDE/Dolphin's master branch. To see what 
 ## Install from source (to `/usr/local/bin`)
 
 ```
+sudo apt-get build-dep dolphin
 wget https://github.com/Zren/dolphin/archive/zren.zip dolphin-zren.zip
 unzip dolphin-zren.zip dolphin-zren
 rm dolphin-zren.zip
