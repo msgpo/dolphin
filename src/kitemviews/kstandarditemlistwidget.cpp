@@ -1176,7 +1176,7 @@ void KStandardItemListWidget::updateTextsCache()
         m_progressBar.fill(Qt::transparent);
 
         QPainter painter(&m_progressBar);
-        const QRect rect(0, m_progressBar.height() * 2/10, m_progressBar.width(), m_progressBar.height() * 8/10);
+        const QRect rect(0, m_progressBar.height() * 2/10, m_progressBar.width() - 1, m_progressBar.height() * 8/10);
         // const int rating = data().value("rating").toInt();
         // KRatingPainter::paintRating(&painter, rect, Qt::AlignJustify | Qt::AlignVCenter, rating);
         // painter->setPen(..)
