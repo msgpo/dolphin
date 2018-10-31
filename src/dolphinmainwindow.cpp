@@ -1498,13 +1498,14 @@ void DolphinMainWindow::setupDockWidgets()
     leftButtonsDock->setObjectName(QStringLiteral("leftButtonsDock"));
 
     ButtonGroupPanel* leftButtonsPanel = new ButtonGroupPanel(leftButtonsDock);
+    leftButtonsDock->setWidget(leftButtonsPanel);
+
     leftButtonsPanel->setCustomContextMenuActions({lockLayoutAction});
     leftButtonsPanel->appendAction(actionCollection()->action(KStandardAction::name(KStandardAction::Back)));
     leftButtonsPanel->appendAction(actionCollection()->action(KStandardAction::name(KStandardAction::Forward)));
     leftButtonsPanel->appendAction(actionCollection()->action(KStandardAction::name(KStandardAction::Up)));
     leftButtonsPanel->appendAction(actionCollection()->action(QStringLiteral("view_mode")));
-    
-    leftButtonsDock->setWidget(leftButtonsPanel);
+
     QAction* leftButtonsAction = leftButtonsDock->toggleViewAction();
     createPanelAction(QIcon::fromTheme(QStringLiteral("arrow-left")), *(new QKeySequence()), leftButtonsAction, QStringLiteral("show_leftbuttons_panel"));
     addDockWidget(Qt::RightDockWidgetArea, leftButtonsDock);
