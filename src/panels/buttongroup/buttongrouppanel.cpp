@@ -36,7 +36,6 @@ ButtonGroupPanel::ButtonGroupPanel(QWidget* parent) :
     m_layout = new QHBoxLayout(this);
     m_layout->setMargin(0);
     m_layout->setSpacing(0);
-    m_layout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding));
 
     // https://api.kde.org/frameworks/kio/html/classKUrlComboBox.html
     int urlComboBoxHeight = 34;
@@ -71,4 +70,9 @@ QToolButton* ButtonGroupPanel::appendAction(QAction* action)
     button->setPopupMode(QToolButton::InstantPopup); // Don't add dropdown arrow
     m_layout->addWidget(button, 0, Qt::AlignTop);
     return button;
+}
+
+void ButtonGroupPanel::appendSpacer()
+{
+    m_layout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::MinimumExpanding));
 }

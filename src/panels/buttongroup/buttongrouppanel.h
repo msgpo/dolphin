@@ -40,6 +40,7 @@ public:
     virtual ~ButtonGroupPanel();
 
     QToolButton* appendAction(QAction* action);
+    void appendSpacer();
 
 protected:
     virtual bool urlChanged() Q_DECL_OVERRIDE;
