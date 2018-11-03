@@ -1467,6 +1467,7 @@ void DolphinMainWindow::setupDockWidgets()
     leftButtonsPanel->appendAction(actionCollection()->action(KStandardAction::name(KStandardAction::Back)));
     leftButtonsPanel->appendAction(actionCollection()->action(KStandardAction::name(KStandardAction::Forward)));
     leftButtonsPanel->appendAction(actionCollection()->action(KStandardAction::name(KStandardAction::Up)));
+    leftButtonsPanel->appendSpacer();
     leftButtonsPanel->appendAction(actionCollection()->action(QStringLiteral("view_mode")));
 
     QAction* leftButtonsAction = leftButtonsDock->toggleViewAction();
