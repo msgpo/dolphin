@@ -1485,6 +1485,7 @@ void DolphinMainWindow::setupDockWidgets()
 #endif
     panelsMenu->addAction(ac->action(QStringLiteral("show_folders_panel")));
     panelsMenu->addAction(ac->action(QStringLiteral("show_terminal_panel")));
+    panelsMenu->addAction(ac->action(QStringLiteral("show_leftbuttons_panel")));
     panelsMenu->addSeparator();
     panelsMenu->addAction(actionShowAllPlaces);
     panelsMenu->addAction(lockLayoutAction);
