@@ -7,8 +7,8 @@ This is a fork of the Dolphin file browser that patches in a couple of features.
 * Sort hidden files and folders last  
   Eg: The hidden folder `.git` would be at the bottom of the file list after all the non-hidden files.  
   [[Bug #333219](https://bugs.kde.org/show_bug.cgi?id=333219)] Mentions the issue is a WontFix since 0.1% users probably want it.
-* Closing split view will close the inactive view, rather than the view currently in focus.  
-  [[Bug #312834](https://bugs.kde.org/show_bug.cgi?id=312834)] mentions that existing users used to the current way will probably complain, but contains a patch.
+* Closing split view will close the inactive view by default instead of needing to configure it.  
+  https://phabricator.kde.org/D18040
 * Left/Right panels will extend to the bottom when there's a bottom panel (more room for bookmarks while the terminal is visible).  
   Need to reset the your panel/layout for this to take effect (see install instructions).
 * Adds a new panel that looks like a toolbar with the back/forward/up buttons, a change "view mode" dropdown button.
