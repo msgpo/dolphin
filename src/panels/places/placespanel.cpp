@@ -39,6 +39,7 @@
 
 #include <KFilePlaceEditDialog>
 #include <KFilePlacesModel>
+#include <KFilePlacesView>
 #include <KIO/DropJob>
 #include <KIO/EmptyTrashJob>
 #include <KIO/Job>
@@ -138,9 +139,14 @@ void PlacesPanel::showEvent(QShowEvent* event)
         KItemListContainer* container = new KItemListContainer(m_controller, this);
         container->setEnabledFrame(false);
 
+        KFilePlacesModel *model = new KFilePlacesModel(this);
+        KFilePlacesView *placesView = new KFilePlacesView(this);
+        placesView->setModel(model);
+        connect(placesView, &KFilePlacesView::urlChanged, this, &PlacesPanel::placeActivated);
+
         QVBoxLayout* layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(container);
+        layout->addWidget(placesView);
 
         selectClosestItem();
     }
