@@ -59,6 +59,8 @@ PlacesPanel::PlacesPanel(QWidget* parent) :
     m_controller(nullptr),
     m_model(nullptr),
     m_view(nullptr),
+    m_model2(nullptr),
+    m_placesView(nullptr),
     m_storageSetupFailedUrl(),
     m_triggerStorageSetupButton(),
     m_itemDropEventIndex(-1),
@@ -138,15 +140,20 @@ void PlacesPanel::showEvent(QShowEvent* event)
 
         KItemListContainer* container = new KItemListContainer(m_controller, this);
         container->setEnabledFrame(false);
+    }
 
-        KFilePlacesModel *model = new KFilePlacesModel(this);
-        KFilePlacesView *placesView = new KFilePlacesView(this);
-        placesView->setModel(model);
-        connect(placesView, &KFilePlacesView::urlChanged, this, &PlacesPanel::placeActivated);
+    if (!m_placesView) {
+        // Postpone the creating of the placesView to the first show event.
+        // This assures that no performance and memory overhead is given when the folders panel is not
+        // used at all and stays invisible.
+        m_model2 = new KFilePlacesModel(this);
+        m_placesView = new KFilePlacesView(this);
+        m_placesView->setModel(m_model2);
+        connect(m_placesView, &KFilePlacesView::urlChanged, this, &PlacesPanel::placeActivated);
 
         QVBoxLayout* layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(placesView);
+        layout->addWidget(m_placesView);
 
         selectClosestItem();
     }

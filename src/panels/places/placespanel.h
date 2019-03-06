@@ -25,6 +25,9 @@
 
 #include <QUrl>
 
+#include <KFilePlacesModel>
+#include <KFilePlacesView>
+
 class KItemListController;
 class PlacesItemModel;
 class PlacesView;
@@ -89,6 +92,9 @@ private:
     KItemListController* m_controller;
     PlacesItemModel* m_model;
     PlacesView* m_view;
+
+    KFilePlacesModel* m_model2;
+    KFilePlacesView* m_placesView;
 
     QUrl m_storageSetupFailedUrl;
     Qt::MouseButton m_triggerStorageSetupButton;
