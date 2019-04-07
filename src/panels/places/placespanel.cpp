@@ -149,6 +149,7 @@ void PlacesPanel::showEvent(QShowEvent* event)
         m_model2 = new KFilePlacesModel(this);
         m_placesView = new KFilePlacesView(this);
         m_placesView->setModel(m_model2);
+        m_placesView->setDropOnPlaceEnabled(true);
         connect(m_placesView, &KFilePlacesView::urlChanged, this, &PlacesPanel::placeActivated);
 
         QVBoxLayout* layout = new QVBoxLayout(this);
