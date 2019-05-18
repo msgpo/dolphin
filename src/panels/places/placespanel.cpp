@@ -24,6 +24,7 @@
 #include "placespanel.h"
 
 #include "dolphin_generalsettings.h"
+#include "dolphin_placespanelsettings.h"
 #include "global.h"
 #include "kitemviews/kitemlistcontainer.h"
 #include "kitemviews/kitemlistcontroller.h"
@@ -50,6 +51,7 @@
 
 #include <QGraphicsSceneDragDropEvent>
 #include <QIcon>
+#include <QSize>
 #include <QMenu>
 #include <QMimeData>
 #include <QVBoxLayout>
@@ -150,6 +152,13 @@ void PlacesPanel::showEvent(QShowEvent* event)
         m_placesView = new KFilePlacesView(this);
         m_placesView->setModel(m_model2);
         m_placesView->setDropOnPlaceEnabled(true);
+
+        m_placesView->setAutoResizeItemsEnabled(false);
+        const int iconSize = PlacesPanelSettings::iconSize();
+        if (iconSize >= 0) {
+            m_placesView->setIconSize(QSize(iconSize, iconSize));
+        }
+
         connect(m_placesView, &KFilePlacesView::urlChanged, this, &PlacesPanel::placeActivated);
 
         QVBoxLayout* layout = new QVBoxLayout(this);
