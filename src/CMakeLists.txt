@@ -206,6 +206,7 @@ set(dolphinstatic_SRCS
     trash/dolphintrash.cpp
     filterbar/filterbar.cpp
     panels/buttongroup/buttongrouppanel.cpp
+    panels/places/kioplacesview.cpp
     panels/places/placespanel.cpp
     panels/places/placesitem.cpp
     panels/places/placesitemlistgroupheader.cpp

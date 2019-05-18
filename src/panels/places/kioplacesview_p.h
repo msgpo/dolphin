@@ -17,8 +17,8 @@
 
 */
 
-#ifndef KFILEPLACESVIEW_P_H
-#define KFILEPLACESVIEW_P_H
+#ifndef KIOPLACESVIEW_P_H
+#define KIOPLACESVIEW_P_H
 
 #include <QMouseEvent>
 

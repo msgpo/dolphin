@@ -16,8 +16,8 @@
     Boston, MA 02110-1301, USA.
 
 */
-#ifndef KFILEPLACESVIEW_H
-#define KFILEPLACESVIEW_H
+#ifndef KIOPLACESVIEW_H
+#define KIOPLACESVIEW_H
 
 // #include "kiofilewidgets_export.h"
 
