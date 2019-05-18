@@ -221,7 +221,8 @@ void KFilePlacesViewDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     bool drawCapacityBar = false;
     if (placesModel->data(index, KFilePlacesModel::CapacityBarRecommendedRole).toBool()) {
         const QUrl url = placesModel->url(index);
-        if (url.isLocalFile() && contentsOpacity(index) > 0) {
+        // if (url.isLocalFile() && contentsOpacity(index) > 0) {
+        if (url.isLocalFile()) {
             const QString mountPointPath = url.toLocalFile();
 
             const KDiskFreeSpaceInfo info = KDiskFreeSpaceInfo::freeSpaceInfo(mountPointPath);
@@ -1093,6 +1094,7 @@ void KFilePlacesView::rowsInserted(const QModelIndex &parent, int start, int end
         if (d->showAll || !placesModel->isHidden(index)) {
             delegate->addAppearingItem(index);
             d->triggerItemAppearingAnimation();
+            d->fadeCapacityBar(index, Private::FadeIn);
         } else {
             setRowHidden(i, true);
         }
@@ -1368,7 +1370,7 @@ void KFilePlacesView::Private::_k_placeClicked(const QModelIndex &index)
 
 void KFilePlacesView::Private::_k_placeEntered(const QModelIndex &index)
 {
-    fadeCapacityBar(index, FadeIn);
+    // fadeCapacityBar(index, FadeIn);
     pollingRequestCount++;
     if (pollingRequestCount == 1) {
         pollDevices.start();
@@ -1377,7 +1379,7 @@ void KFilePlacesView::Private::_k_placeEntered(const QModelIndex &index)
 
 void KFilePlacesView::Private::_k_placeLeft(const QModelIndex &index)
 {
-    fadeCapacityBar(index, FadeOut);
+    // fadeCapacityBar(index, FadeOut);
     pollingRequestCount--;
     if (!pollingRequestCount) {
         pollDevices.stop();
