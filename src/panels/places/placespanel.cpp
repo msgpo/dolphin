@@ -40,7 +40,8 @@
 
 #include <KFilePlaceEditDialog>
 #include <KFilePlacesModel>
-#include <KFilePlacesView>
+// #include <KFilePlacesView>
+#include "kioplacesview.h"
 #include <KIO/DropJob>
 #include <KIO/EmptyTrashJob>
 #include <KIO/Job>

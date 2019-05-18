@@ -26,7 +26,8 @@
 #include <QUrl>
 
 #include <KFilePlacesModel>
-#include <KFilePlacesView>
+// #include <KFilePlacesView>
+#include "kioplacesview.h"
 
 class KItemListController;
 class PlacesItemModel;
