@@ -162,6 +162,12 @@ void PlacesPanel::showEvent(QShowEvent* event)
 
         connect(m_placesView, &KFilePlacesView::urlChanged, this, &PlacesPanel::placeActivated);
 
+        // TODO: Perform various checks before calling PlacesPanel::slotUrlsDropped.
+        // Note: slotItemDropEvent(...) checks destItem->isSearchOrTimelineUrl() and cancels the drop if so.
+        // Note: slotItemDropEvent(...) checks m_model->storageSetupNeeded first before calling &PlacesPanel::slotUrlsDropped
+        // Note: slotUrlsDropped(destUrl, &dropEvent, this), this == KFilePlacesView, when it should be PlacesPanel.
+        connect(m_placesView, &KFilePlacesView::urlsDropped, this, &PlacesPanel::slotUrlsDropped);
+
         QVBoxLayout* layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(m_placesView);
