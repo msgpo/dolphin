@@ -147,12 +147,12 @@ extern "C" Q_DECL_EXPORT int kdemain(int argc, char **argv)
         urls.append(urls.last());
     }
 
-    if (!parser.isSet(QStringLiteral("new-window"))) {
-        if (Dolphin::attachToExistingInstance(urls, openFiles, splitView)) {
-            // Successfully attached to existing instance of Dolphin
-            return 0;
-        }
-    }
+    // if (!parser.isSet(QStringLiteral("new-window"))) {
+    //     if (Dolphin::attachToExistingInstance(urls, openFiles, splitView)) {
+    //         // Successfully attached to existing instance of Dolphin
+    //         return 0;
+    //     }
+    // }
 
     if (urls.isEmpty()) {
         // We need at least one URL to open Dolphin
