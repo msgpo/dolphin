@@ -16,7 +16,8 @@ This is a fork of the Dolphin file browser that patches in a couple of features.
   The buttons are not configurable like a toolbar unfortunately.
 * Added a few "View Modes" which will toggle "Preview" automatically, and "Zoom" to specific sizes which are familiar to Windows users.  
   Huge Icons, Large Icons, and Tiled view mode presets.
-* When a folder is a mount point (usb/hard drive/partition), show progressbar in the "Size" column instead of the number of files it contains.
+* ~~When a folder is a mount point (usb/hard drive/partition), show a capacity bar in the "Size" column instead of the number of files it contains.~~  
+  Removed this feature for now. Instead we only show a capacity bar in the "places" sidebar.
 * In the Places panel, moved devices above the recently saved and search but below bookmarks.
 * Select child folder when going up  
   [[Bug #315471](https://bugs.kde.org/show_bug.cgi?id=315471)] closed as invalid (because you should be going "back").  
